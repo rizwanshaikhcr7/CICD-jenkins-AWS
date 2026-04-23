@@ -1,6 +1,5 @@
 node {
-    // Added leading slash for absolute path
-    def appDir = '/var/www/nextjs-app' 
+    def appDir = '/var/www/nextjs-app' // Must start with /
     
     stage('Clean Workspace') {
         deleteDir()
