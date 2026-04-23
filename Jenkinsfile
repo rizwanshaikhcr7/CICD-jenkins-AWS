@@ -1,39 +1,38 @@
 node {
-    def appDir = 'var/www/nextjs-app'
+    // Added leading slash for absolute path
+    def appDir = '/var/www/nextjs-app' 
     
     stage('Clean Workspace') {
         deleteDir()
     }
     
-    stage('Clean repo'){
-        echo 'cleaing the repo'
+    stage('Clone Repo') {
+        echo 'Cleaning and cloning the repo'
         git(
             branch: 'main',
             url: 'https://github.com/rizwanshaikhcr7/CICD-jenkins-AWS'
         )
     }
 
-    stage('Deploy to ec2')
-      echo 'Deploying to EC2'
+    // Added missing curly braces for the stage
+    stage('Deploy to EC2') { 
+        echo 'Deploying to EC2'
         sh """
             sudo mkdir -p ${appDir}
-            sudo chown -R 
-            jenkins:jenkins ${appDir}
+            sudo chown -R jenkins:jenkins ${appDir}
 
-            rsync -av --delete
-            --exclude= '.git' 
-            --exclude= 'node_modules' .
-            / ${appDir}
+            # Fixed rsync formatting to be on a single line or use backslashes
+            rsync -av --delete --exclude='.git' --exclude='node_modules' . ${appDir}
 
             cd ${appDir} 
-            sudo npm install
-            sudo npm run build
-            sudo fuser -k 3000/tcp ||
-            true
-            npm start 
+            npm install
+            npm run build
+            
+            # Kill existing process on port 3000
+            sudo fuser -k 3000/tcp || true
+            
+            # Run in background so Jenkins doesn't hang
+            nohup npm start > /dev/null 2>&1 & 
         """
-
+    }
 }
-
-
-
